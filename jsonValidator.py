@@ -21,19 +21,19 @@ class JSONValidatorService:
         ignore_fields = set(ignore_fields or [])
 
         def _validate(obj: Union[Dict, List, Any], path: str):
-            if path in ignore_fields:
-                return
 
             if obj is None:
                 null_paths.append(path if path else "root")
             elif isinstance(obj, dict):
                 for key, value in obj.items():
-                    new_path = f"{path}.{key}" if path else key
-                    _validate(value, new_path)
+                    if key not in ignore_fields:
+                        new_path = f"{path}.{key}" if path else key
+                        _validate(value, new_path)
             elif isinstance(obj, list):
                 for index, item in enumerate(obj):
-                    new_path = f"{path}[{index}]"
-                    _validate(item, new_path)
+                    if index not in ignore_fields:
+                        new_path = f"{path}[{index}]"
+                        _validate(item, new_path)
 
         _validate(data, "")
         return null_paths
